@@ -10,24 +10,40 @@ library(tidyverse)
 library(plotly)
 library(crosstalk)
 Airbnb_Listings <- read_csv("dataset_airbnb_scraper_all_fields_2023-09-27_cleaned_v4.csv")
-#Airbnb_reorder <- Airbnb_Listings %>%
-#mutate(
-#    neighbourhood = fct_reorder(neighbourhood, price, .fun = median)
-#  )
-#shared_aribnb <- SharedData$new(Airbnb_reorder)
+Airbnb_reorder <- Airbnb_Listings %>%
+mutate(
+    county = fct_reorder(county, occupancy_percentage, .fun = median)
+  )
+shared_aribnb <- SharedData$new(Airbnb_reorder)
 
+```
+
+Sidebar {.sidebar}
+----------------------
+```{r}
+filter_select("County", "Neighbourhood", shared_aribnb, ~county)
 ```
 
 Column
 --------------------------
 ```{r}
-P <- Airbnb_Listings %>%
-  ggplot() + geom_point(mapping = aes(x = county, y = occupancy_percentage )) +
+P <- shared_aribnb %>%
+  ggplot() + geom_boxplot(mapping = aes(x = county, y = occupancy_percentage )) +
   theme(axis.text.x = element_text(size = 5,angle = 90, vjust = 1, hjust=1))
 ggplotly(P)
 
-C <- Airbnb_Listings %>%
+C <- shared_aribnb %>%
   ggplot() + 
   geom_point(mapping = aes(x = location_lng, y = location_lat, fill = county, alpha = 0.1))
 ggplotly(C)
 ```
+
+column 2 
+---------------
+```{r}
+D <- shared_aribnb %>%
+  ggplot() +
+  geom_point(mapping = aes(y = pricing_rate_amount, x = occupancy_percentage))
+ggplotly(D, width = 500, height = 500)
+```
+
